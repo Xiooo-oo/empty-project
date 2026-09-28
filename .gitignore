@@ -1,0 +1,21 @@
+# Dependencies and build output
+node_modules/
+dist/
+target/
+src-tauri/target/
+
+# Tauri generated metadata
+src-tauri/gen/schemas/
+
+# Local editor and environment files
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Installer artifacts
+*.msi
+*.exe

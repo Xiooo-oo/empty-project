@@ -1,0 +1,41 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Build Windows installers
+        run: npm run tauri build
+
+      - name: Save installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: mimi-deskpet-windows-x64-unsigned
+          path: |
+            src-tauri/target/release/bundle/nsis/
+            src-tauri/target/release/bundle/msi/
+          if-no-files-found: error
+          retention-days: 14
