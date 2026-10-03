@@ -1,0 +1,101 @@
+name: Windows signed build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-signed:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Import code-signing certificate
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_BASE64)) {
+            throw 'Add WINDOWS_CERTIFICATE_BASE64 to the repository Actions secrets.'
+          }
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_PASSWORD)) {
+            throw 'Add WINDOWS_CERTIFICATE_PASSWORD to the repository Actions secrets.'
+          }
+
+          $pfxPath = Join-Path $env:RUNNER_TEMP 'mimi-deskpet-signing.pfx'
+          $pfxBytes = [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64)
+          [IO.File]::WriteAllBytes($pfxPath, $pfxBytes)
+
+          try {
+            $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+            $imported = @(Import-PfxCertificate -FilePath $pfxPath -CertStoreLocation Cert:\CurrentUser\My -Password $password)
+            $signingCertificate = $imported | Where-Object { $_.HasPrivateKey } | Select-Object -First 1
+            if ($null -eq $signingCertificate) {
+              throw 'The PFX did not contain a certificate with its private key.'
+            }
+
+            $configPath = Join-Path $env:RUNNER_TEMP 'tauri-signing.conf.json'
+            $config = @{
+              bundle = @{
+                windows = @{
+                  certificateThumbprint = $signingCertificate.Thumbprint
+                  digestAlgorithm = 'sha256'
+                  timestampUrl = 'http://timestamp.digicert.com'
+                }
+              }
+            } | ConvertTo-Json -Depth 5
+            [IO.File]::WriteAllText($configPath, $config, [Text.UTF8Encoding]::new($false))
+            "TAURI_SIGN_CONFIG=$configPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+          finally {
+            Remove-Item -LiteralPath $pfxPath -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Build signed Windows installers
+        shell: pwsh
+        run: npm run tauri build -- --config "$env:TAURI_SIGN_CONFIG"
+
+      - name: Verify Authenticode signatures
+        shell: pwsh
+        run: |
+          $artifacts = @(
+            Get-ChildItem 'src-tauri/target/release/bundle' -Recurse -File |
+              Where-Object { $_.Extension -in '.exe', '.msi' }
+          )
+          if ($artifacts.Count -eq 0) {
+            throw 'No Windows installer artifacts were produced.'
+          }
+
+          foreach ($artifact in $artifacts) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $artifact.FullName
+            if ($signature.Status -ne 'Valid') {
+              throw "Invalid or missing signature on $($artifact.Name): $($signature.Status)"
+            }
+            Write-Host "Verified signature: $($artifact.Name) ($($signature.SignerCertificate.Subject))"
+          }
+
+      - name: Save signed installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: mimi-deskpet-windows-x64-signed
+          path: |
+            src-tauri/target/release/bundle/nsis/
+            src-tauri/target/release/bundle/msi/
+          if-no-files-found: error
+          retention-days: 14

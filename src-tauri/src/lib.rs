@@ -48,7 +48,7 @@ fn quit_app(app: tauri::AppHandle) { app.exit(0); }
 #[tauri::command]
 fn system_idle() -> bool {
     let mut input = LASTINPUTINFO { cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32, dwTime: 0 };
-    unsafe { GetLastInputInfo(&mut input).is_ok() && input.elapsed_since() >= IDLE_AFTER_MS }
+    unsafe { GetLastInputInfo(&mut input).as_bool() && input.elapsed_since() >= IDLE_AFTER_MS }
 }
 
 fn in_pet_shape(window: &WebviewWindow, mask: &(u32, u32, Vec<u8>), point: POINT) -> bool {
@@ -105,7 +105,7 @@ fn start_desktop_monitor(app: tauri::AppHandle, window: WebviewWindow, state: Ar
         loop {
             thread::sleep(Duration::from_millis(75));
             let mut input = LASTINPUTINFO { cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32, dwTime: 0 };
-            let idle = unsafe { GetLastInputInfo(&mut input).is_ok() && input.dwTime.elapsed_since() >= IDLE_AFTER_MS };
+            let idle = unsafe { GetLastInputInfo(&mut input).as_bool() && input.elapsed_since() >= IDLE_AFTER_MS };
             if idle != last_idle {
                 last_idle = idle;
                 let _ = app.emit("system-idle", idle);
@@ -124,7 +124,9 @@ trait ElapsedInput {
 }
 
 impl ElapsedInput for LASTINPUTINFO {
-    fn elapsed_since(&self) -> u32 { unsafe { windows::Win32::System::SystemInformation::GetTickCount() } - self.dwTime }
+    fn elapsed_since(&self) -> u32 {
+        unsafe { windows::Win32::System::SystemInformation::GetTickCount() }.wrapping_sub(self.dwTime)
+    }
 }
 
 pub fn run() {

@@ -5,7 +5,7 @@ body { user-select: none; }
 .pet-window { position: relative; display: grid; width: 100vw; height: 100vh; place-items: center; background: transparent; }
 .pet-window > img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; cursor: grab; -webkit-user-drag: none; filter: drop-shadow(0 5px 5px rgb(37 22 32 / 10%)); }
 .pet-window > img:active { cursor: grabbing; }
-.walking { animation: walk-bob .3s steps(2, end) infinite; }
+.walking { animation: walk-bob 500ms steps(2, end) infinite; }
 .blink { animation: blink .52s ease-in-out; }
 .jump { animation: jump .78s cubic-bezier(.2,.8,.35,1); }
 .meow { animation: meow .24s ease-in-out 2 alternate; }

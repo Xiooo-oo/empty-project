@@ -4,7 +4,13 @@
   import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 
   type Action = 'idle' | 'walk' | 'sleep' | 'blink' | 'jump' | 'meow';
-  const walkFrames = ['/cats/walk-1.png', '/cats/walk-2.png', '/cats/walk-3.png'];
+  const walkFrames = [
+    '/cats/walk-1-aligned.png',
+    '/cats/walk-2-aligned.png',
+    '/cats/walk-3-aligned.png',
+    '/cats/walk-2-aligned.png',
+  ];
+  const walkFrameDuration = 125;
   let action: Action = 'idle';
   let frame = 0;
   let menuOpen = false;
@@ -110,7 +116,7 @@
     frameTimer = setInterval(() => {
       if (action === 'walk') frame = (frame + 1) % walkFrames.length;
       if (!desktopRuntime && !resting && Date.now() - lastActivity > 180_000 && action !== 'sleep') setAction('sleep');
-    }, 500);
+    }, walkFrameDuration);
 
     const unlisten = listenNative<boolean>('resting-changed', ({ payload }) => {
       resting = payload;
