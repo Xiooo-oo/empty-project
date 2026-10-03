@@ -20,3 +20,4 @@ Thumbs.db
 # Installer artifacts
 *.msi
 *.exe
+release-assets/
