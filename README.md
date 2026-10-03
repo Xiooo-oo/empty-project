@@ -14,7 +14,7 @@
 
 ## 下载并启动
 
-打开 [GitHub Releases](https://github.com/Xiooo-oo/xio-cat-deskpet/releases/latest)，下载 Windows x64 安装程序 `咪咪桌宠_0.1.0_x64-setup.exe`。双击安装并按提示完成后，在 Windows 开始菜单搜索“咪咪桌宠”并启动。桌宠窗口出现后，右键猫咪可打开动作菜单，选择“走两步”播放行走动画。
+打开 [GitHub Releases](https://github.com/Xiooo-oo/xio-cat-deskpet/releases/latest)，下载 `xiaxia-deskpet-0.1.0-x64-setup.exe`，双击并按安装向导完成安装。之后在 Windows 开始菜单搜索“咪咪桌宠”并启动。桌宠窗口出现后，右键猫咪可打开动作菜单，选择“走两步”播放行走动画。也可以下载 ZIP 版本，解压后运行其中的安装程序。
 
 首版安装包尚未签名。若 Windows 显示 Microsoft Defender SmartScreen 的“Windows 已保护你的电脑”，确认文件来自本仓库后，可选择“更多信息 → 仍要运行”。启用 Smart App Control 的电脑可能会直接阻止未签名应用；此时安装包无法保证运行。
 
