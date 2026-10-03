@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { invoke } from '@tauri-apps/api/core';
   import { listen, type UnlistenFn } from '@tauri-apps/api/event';
+  import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 
   type Action = 'idle' | 'walk' | 'sleep' | 'blink' | 'jump' | 'meow';
   const walkFrames = [
@@ -11,9 +12,12 @@
     '/cats/walk-2-aligned.png',
   ];
   const walkFrameDuration = 125;
+  const petSizes = [96, 128, 160] as const;
   let action: Action = 'idle';
   let frame = 0;
   let menuOpen = false;
+  let menuPage: 'main' | 'actions' | 'sizes' = 'main';
+  let petSize: number = 160;
   let resting = false;
   let bubble = '';
   let bubbleTimer: ReturnType<typeof setTimeout>;
@@ -53,7 +57,15 @@
 
   function closeMenu() {
     menuOpen = false;
+    menuPage = 'main';
     void callNative('set_interactive', { interactive: false });
+  }
+
+  function changePetSize(size: number) {
+    petSize = size;
+    try { localStorage.setItem('xiaxia-deskpet-size', String(size)); } catch { /* Storage may be unavailable in private preview contexts. */ }
+    if (desktopRuntime) void getCurrentWindow().setSize(new LogicalSize(size, size));
+    closeMenu();
   }
 
   function showBubble(text: string) {
@@ -101,6 +113,7 @@
     event.preventDefault();
     noteActivity();
     menuOpen = !menuOpen;
+    if (menuOpen) menuPage = 'main';
     void callNative('set_interactive', { interactive: menuOpen });
   }
 
@@ -113,6 +126,12 @@
   }
 
   onMount(() => {
+    try {
+      const savedSize = Number(localStorage.getItem('xiaxia-deskpet-size'));
+      if (petSizes.includes(savedSize as typeof petSizes[number])) petSize = savedSize;
+    } catch { /* Use the default size when storage is unavailable. */ }
+    if (desktopRuntime) void getCurrentWindow().setSize(new LogicalSize(petSize, petSize));
+
     frameTimer = setInterval(() => {
       if (action === 'walk') frame = (frame + 1) % walkFrames.length;
       if (!desktopRuntime && !resting && Date.now() - lastActivity > 180_000 && action !== 'sleep') setAction('sleep');
@@ -149,20 +168,38 @@
   });
 </script>
 
-<svelte:head><title>咪咪桌宠</title></svelte:head>
+<svelte:head><title>虾虾桌宠</title></svelte:head>
 
-<main class="pet-window" oncontextmenu={onContextMenu}>
+<main class="pet-window" style={`--pet-size: ${petSize}px`} oncontextmenu={onContextMenu}>
   {#if bubble}<div class="speech" aria-live="polite">{bubble}</div>{/if}
   <div class="menu-anchor">
     {#if menuOpen}
-      <nav class="pet-menu" aria-label="猫咪动作">
-        <button onclick={() => runAction('blink')}>眨眨眼</button>
-        <button onclick={() => runAction('jump')}>跳一下</button>
-        <button onclick={() => runAction('meow')}>喵一声</button>
-        <button onclick={() => runAction('walk')}>走两步</button>
-        <span class="menu-divider"></span>
-        <button onclick={() => void toggleRest()}>{resting ? '结束休息' : '开始休息'}</button>
-        <button onclick={() => { closeMenu(); void callNative('quit_app'); }}>退出桌宠</button>
+      <nav class="pet-menu" aria-label="虾虾桌宠菜单">
+        {#if menuPage === 'main'}
+          <button onclick={() => menuPage = 'actions'}>动作…</button>
+          <button onclick={() => menuPage = 'sizes'}>更改大小…</button>
+          <span class="menu-divider"></span>
+          <button onclick={() => void toggleRest()}>{resting ? '结束休息' : '开始休息'}</button>
+          <button onclick={() => { closeMenu(); void callNative('quit_app'); }}>退出虾虾桌宠</button>
+        {:else if menuPage === 'actions'}
+          <button class="menu-back" onclick={() => menuPage = 'main'}>‹ 返回</button>
+          <span class="menu-divider"></span>
+          <div class="pet-action-options" aria-label="虾虾动作">
+            <button onclick={() => runAction('blink')}>眨眨眼</button>
+            <button onclick={() => runAction('jump')}>跳一下</button>
+            <button onclick={() => runAction('meow')}>喵一声</button>
+            <button onclick={() => runAction('walk')}>走两步</button>
+          </div>
+        {:else}
+          <button class="menu-back" onclick={() => menuPage = 'main'}>‹ 返回</button>
+          <span class="menu-divider"></span>
+          <div class="size-label">桌宠大小（像素）</div>
+          <div class="pet-size-options" aria-label="更改桌宠大小">
+            {#each petSizes as size}
+              <button class:selected={petSize === size} aria-pressed={petSize === size} onclick={() => changePetSize(size)}>{size}</button>
+            {/each}
+          </div>
+        {/if}
       </nav>
     {/if}
   </div>
@@ -173,7 +210,7 @@
     class:sleeping={action === 'sleep'}
     class:walking={action === 'walk'}
     src={image}
-    alt="黑白奶牛猫 Mimi"
+    alt="黑白奶牛猫虾虾"
     draggable="false"
     ondragstart={(event) => event.preventDefault()}
     onpointerdown={(event) => {

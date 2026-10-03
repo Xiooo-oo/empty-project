@@ -1,12 +1,12 @@
 [package]
-name = "mimi-deskpet"
-version = "0.1.0"
+name = "xiaxia-deskpet"
+version = "0.2.0"
 description = "A tiny desktop companion for Windows"
-authors = ["Mimi Deskpet contributors"]
+authors = ["Xiaxia Deskpet contributors"]
 edition = "2021"
 
 [lib]
-name = "mimi_deskpet_lib"
+name = "xiaxia_deskpet_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

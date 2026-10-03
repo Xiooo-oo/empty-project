@@ -3,7 +3,7 @@
 html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
 body { user-select: none; }
 .pet-window { position: relative; display: grid; width: 100vw; height: 100vh; place-items: center; background: transparent; }
-.pet-window > img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; cursor: grab; -webkit-user-drag: none; filter: drop-shadow(0 5px 5px rgb(37 22 32 / 10%)); }
+.pet-window > img { width: min(100%, var(--pet-size)); height: min(100%, var(--pet-size)); object-fit: contain; image-rendering: pixelated; cursor: grab; -webkit-user-drag: none; filter: drop-shadow(0 5px 5px rgb(37 22 32 / 10%)); }
 .pet-window > img:active { cursor: grabbing; }
 .walking { animation: walk-bob 500ms steps(2, end) infinite; }
 .blink { animation: blink .52s ease-in-out; }
@@ -12,9 +12,14 @@ body { user-select: none; }
 .sleeping { animation: breathe 2s ease-in-out infinite; }
 .speech { position: absolute; z-index: 2; top: 4%; left: 48%; padding: 7px 12px; border: 2px solid #433648; border-radius: 16px 16px 16px 4px; background: #fff8df; box-shadow: 2px 3px 0 #433648; font-size: 14px; font-weight: 700; animation: pop .16s ease-out; }
 .menu-anchor { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
-.pet-menu { position: absolute; top: 18%; left: 48%; display: grid; min-width: 122px; padding: 5px; border: 2px solid #403342; border-radius: 10px; background: #fffdf5; box-shadow: 3px 4px 0 rgb(50 38 49 / 30%); pointer-events: auto; }
-.pet-menu button { padding: 8px 9px; border: 0; border-radius: 6px; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
-.pet-menu button:hover { background: #f7edda; }
+.pet-menu { position: absolute; top: 4px; left: 4px; display: grid; min-width: 142px; max-height: calc(100vh - 8px); overflow-y: auto; padding: 5px; border: 2px solid #403342; border-radius: 10px; background: #fffdf5; box-shadow: 3px 4px 0 rgb(50 38 49 / 30%); pointer-events: auto; }
+.pet-menu button { padding: 6px 8px; border: 0; border-radius: 6px; background: transparent; color: inherit; text-align: left; font: inherit; font-size: 13px; cursor: pointer; }
+.pet-menu button:hover, .pet-menu button.selected { background: #f7edda; }
+.pet-menu .menu-back { width: 100%; }
+.pet-action-options { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.size-label { padding: 6px 9px 2px; color: #655a65; font-size: 12px; }
+.pet-size-options { display: flex; gap: 2px; padding: 2px 4px; }
+.pet-size-options button { flex: 1; padding: 6px 3px; text-align: center; font-size: 12px; }
 .menu-divider { height: 1px; margin: 3px 5px; background: #ddd3c8; }
 .preview-notice { position: fixed; z-index: 10; top: 10px; left: 50%; transform: translateX(-50%); padding: 6px 10px; border: 1px solid #ddd3c8; border-radius: 8px; background: #fffdf5; color: #655a65; font-size: 12px; white-space: nowrap; box-shadow: 0 2px 8px rgb(37 22 32 / 10%); pointer-events: none; }
 @keyframes walk-bob { 50% { transform: translateY(-4px); } }

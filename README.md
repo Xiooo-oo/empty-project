@@ -2,19 +2,20 @@
 
 把家里的黑白奶牛猫虾虾，变成一只会待机、散步和打盹的 Windows 像素桌宠。
 
-![咪咪桌宠动作演示](docs/demo.gif)
+![虾虾桌宠动作演示](docs/demo.gif)
 
 ## 功能
 
 - 透明、无边框、始终置顶的小窗口；非猫咪轮廓区域会把鼠标点击交给桌面上的其他窗口。
-- 左键按住猫咪可拖动。右键菜单可让咪咪眨眼、跳跃、喵叫、散步，或者切换休息状态。
+- 左键按住猫咪可拖动。右键菜单可让虾虾眨眼、跳跃、喵叫、散步、调整大小或切换休息状态。
+- 右键菜单提供 96、128、160 像素三种大小，选择会自动保存；160 像素是当前 320 像素窗口的一半，也是窗口最大尺寸。
 - 系统托盘右键菜单可切换休息状态或退出；左键单击托盘也能切换休息。
-- 通过 Windows 全局空闲输入检测挂机；连续 3 分钟没有键盘或鼠标输入时，咪咪会趴下睡觉。
+- 通过 Windows 全局空闲输入检测挂机；连续 3 分钟没有键盘或鼠标输入时，虾虾会趴下睡觉。
 - GIF 格式的中文 README 演示图，MIT 许可证。
 
 ## 下载并启动
 
-打开 [GitHub Releases](https://github.com/Xiooo-oo/xio-cat-deskpet/releases/latest)，下载 `xiaxia-deskpet-0.1.0-x64-setup.exe`，双击并按安装向导完成安装。之后在 Windows 开始菜单搜索“咪咪桌宠”并启动。桌宠窗口出现后，右键猫咪可打开动作菜单，选择“走两步”播放行走动画。也可以下载 ZIP 版本，解压后运行其中的安装程序。
+打开 [GitHub Releases](https://github.com/Xiooo-oo/xio-cat-deskpet/releases/latest)，下载 `xiaxia-deskpet-0.2.0-x64-setup.exe`，双击并按安装向导完成安装。之后在 Windows 开始菜单搜索“虾虾桌宠”并启动。桌宠窗口出现后，右键猫咪可打开动作菜单，选择“走两步”播放行走动画，也可在“桌宠大小”下选择 96、128 或 160 像素。也可以下载 ZIP 版本，解压后运行其中的安装程序。
 
 首版安装包尚未签名。若 Windows 显示 Microsoft Defender SmartScreen 的“Windows 已保护你的电脑”，确认文件来自本仓库后，可选择“更多信息 → 仍要运行”。启用 Smart App Control 的电脑可能会直接阻止未签名应用；此时安装包无法保证运行。
 
@@ -64,7 +65,7 @@ npm run tauri build
 - `WINDOWS_CERTIFICATE_BASE64`：上一步复制的 Base64 字符串。
 - `WINDOWS_CERTIFICATE_PASSWORD`：导出 PFX 时设置的密码。
 
-之后到 **Actions → Windows signed build → Run workflow** 启动签名构建。完成后从该次运行的 **Artifacts** 下载 `mimi-deskpet-windows-x64-signed`。工作流会验证安装包签名；证书只在临时 GitHub runner 中导入，PFX 文件会在导入后删除。不要把 PFX、密码或私钥提交到 GitHub，也不要发到聊天中。
+之后到 **Actions → Windows signed build → Run workflow** 启动签名构建。完成后从该次运行的 **Artifacts** 下载 `xiaxia-deskpet-windows-x64-signed`。工作流会验证安装包签名；证书只在临时 GitHub runner 中导入，PFX 文件会在导入后删除。不要把 PFX、密码或私钥提交到 GitHub，也不要发到聊天中。
 
 新程序的下载仍可能出现 SmartScreen 信誉提示；签名提供可信发布者身份，并让后续版本逐步累积信誉。Smart App Control 对未签名或不受信任的程序可能直接阻止运行。发布版本应持续使用同一证书，并在开启 Smart App Control 的 Windows 设备上验证。
 

@@ -68,12 +68,12 @@ fn install_tray(app: &tauri::App) -> tauri::Result<()> {
     use tauri::tray::TrayIconBuilder;
 
     let toggle = MenuItem::with_id(app, "toggle-rest", "切换待机 / 休息", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "退出咪咪桌宠", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "退出虾虾桌宠", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&toggle, &quit])?;
     let icon = app.default_window_icon().cloned().expect("bundle icon is configured");
     TrayIconBuilder::new()
         .icon(icon)
-        .tooltip("咪咪桌宠")
+        .tooltip("虾虾桌宠")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(move |app, event| match event.id.as_ref() {
@@ -148,5 +148,5 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![start_dragging, set_resting, set_interactive, system_idle, quit_app])
         .run(tauri::generate_context!())
-        .expect("failed to run Mimi Deskpet");
+        .expect("failed to run Xiaxia Deskpet");
 }
